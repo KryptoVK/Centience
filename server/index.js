@@ -10,21 +10,15 @@ const __dirname = dirname(__filename);
 const app = express();
 const httpServer = createServer(app);
 
-// Serve static files in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(join(__dirname, '../dist')));
-  
-  // Handle client-side routing
-  app.get('*', (req, res) => {
-    res.sendFile(join(__dirname, '../dist/index.html'));
-  });
-}
+app.use(express.static(join(__dirname, '../dist')));
+
+app.get('*', (req, res) => {
+  res.sendFile(join(__dirname, '../dist/index.html'));
+});
 
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.NODE_ENV === 'production' 
-      ? 'https://centience.onrender.com'
-      : '*',
+    origin: 'https://centience.onrender.com',
     methods: ['GET', 'POST'],
     credentials: true
   },
@@ -79,5 +73,5 @@ setInterval(() => {
 
 const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
+  console.log(`Server running on port ${PORT}`);
 });
