@@ -13,8 +13,9 @@ interface SocketContextType {
 
 const SocketContext = createContext<SocketContextType | null>(null);
 
-// Use the same URL for both development and production
-const SOCKET_URL = window.location.origin;
+const SOCKET_URL = import.meta.env.PROD 
+  ? 'https://centience.onrender.com'
+  : 'http://localhost:3000';
 
 export function SocketProvider({ children }: { children: ReactNode }) {
   const [socket, setSocket] = useState<Socket | null>(null);
