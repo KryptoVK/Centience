@@ -13,10 +13,9 @@ interface SocketContextType {
 
 const SocketContext = createContext<SocketContextType | null>(null);
 
-// Update socket URL based on environment
 const SOCKET_URL = import.meta.env.PROD 
-  ? 'https://playful-cranachan-6f5609.netlify.app'  // Production server
-  : 'http://localhost:3000';                        // Development server
+  ? 'https://centience.onrender.com'  // Production server on Render
+  : 'http://localhost:3000';          // Development server
 
 export function SocketProvider({ children }: { children: ReactNode }) {
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -110,12 +109,4 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       {children}
     </SocketContext.Provider>
   );
-}
-
-export function useSocket() {
-  const context = useContext(SocketContext);
-  if (!context) {
-    throw new Error('useSocket must be used within a SocketProvider');
-  }
-  return context;
 }
