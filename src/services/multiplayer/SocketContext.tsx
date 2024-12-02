@@ -13,9 +13,8 @@ interface SocketContextType {
 
 const SocketContext = createContext<SocketContextType | null>(null);
 
-const SOCKET_URL = import.meta.env.PROD 
-  ? 'https://centience.onrender.com'  // Production server on Render
-  : 'http://localhost:3000';          // Development server
+// Use the same URL for both development and production
+const SOCKET_URL = window.location.origin;
 
 export function SocketProvider({ children }: { children: ReactNode }) {
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -109,4 +108,12 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       {children}
     </SocketContext.Provider>
   );
+}
+
+export function useSocket() {
+  const context = useContext(SocketContext);
+  if (!context) {
+    throw new Error('useSocket must be used within a SocketProvider');
+  }
+  return context;
 }
