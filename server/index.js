@@ -10,11 +10,20 @@ const __dirname = dirname(__filename);
 const app = express();
 const httpServer = createServer(app);
 
-// Enable CORS for all origins in development
+// Serve static files in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(join(__dirname, '../dist')));
+  
+  // Handle client-side routing
+  app.get('*', (req, res) => {
+    res.sendFile(join(__dirname, '../dist/index.html'));
+  });
+}
+
 const io = new Server(httpServer, {
   cors: {
     origin: process.env.NODE_ENV === 'production' 
-      ? 'https://playful-cranachan-6f5609.netlify.app'
+      ? 'https://centience.onrender.com'
       : '*',
     methods: ['GET', 'POST'],
     credentials: true
@@ -30,14 +39,12 @@ let worldSchema = null;
 io.on('connection', (socket) => {
   console.log('Player connected:', socket.id);
 
-  // Send current state to new player
   if (worldSchema) {
     socket.emit('worldUpdate', worldSchema);
   }
   
   socket.emit('players', Array.from(players.values()));
 
-  // Handle player updates
   socket.on('playerUpdate', (data) => {
     const playerData = {
       ...data,
@@ -48,13 +55,11 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('playerUpdate', playerData);
   });
 
-  // Handle world updates
   socket.on('worldUpdate', (schema) => {
     worldSchema = schema;
     socket.broadcast.emit('worldUpdate', schema);
   });
 
-  // Handle disconnection
   socket.on('disconnect', () => {
     console.log('Player disconnected:', socket.id);
     players.delete(socket.id);
@@ -62,7 +67,6 @@ io.on('connection', (socket) => {
   });
 });
 
-// Clean up inactive players
 setInterval(() => {
   const now = Date.now();
   for (const [id, player] of players.entries()) {
